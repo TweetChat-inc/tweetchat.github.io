@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TweetChat Call</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Call Type Selection Screen -->
+        <div id="type-screen" class="screen active">
+            <div class="type-container">
+                <div class="logo">
+                    <img class="tag_logo_pc" src="https://tweetchat.me/themes/wondertag/img/logo.png" alt="TweetChat">
+                    <img class="tag_logo_mobi" src="https://tweetchat.me/themes/wondertag/img/icon.png" alt="TweetChat">
+                </div>
+                <div class="call-types">
+                    <button class="type-btn" data-type="audio">
+                        <i class="material-icons">call</i>
+                        <span>Audio Call</span>
+                    </button>
+                    <button class="type-btn" data-type="video">
+                        <i class="material-icons">videocam</i>
+                        <span>Video Call</span>
+                    </button>
+                    <button class="type-btn" data-type="group">
+                        <i class="material-icons">groups</i>
+                        <span>Group Call</span>
+                    </button>
+                    <button class="type-btn" data-type="live">
+                        <i class="material-icons">stream</i>
+                        <span>Go Live</span>
+                        <div class="live-badge">LIVE</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Screen -->
+        <div id="setup-screen" class="screen">
+            <div class="setup-container">
+                <div class="logo">
+                    <img class="tag_logo_pc" src="https://tweetchat.me/themes/wondertag/img/logo.png" alt="TweetChat">
+                    <img class="tag_logo_mobi" src="https://tweetchat.me/themes/wondertag/img/icon.png" alt="TweetChat">
+                </div>
+                <div class="setup-controls">
+                    <div class="call-info">
+                        <h2 id="setupTitle">Video Call</h2>
+                        <p id="setupDescription">Starting a one-on-one video call</p>
+                    </div>
+                    <div class="device-setup">
+                        <select id="videoSource" class="device-select">
+                            <option value="">Loading cameras...</option>
+                        </select>
+                        <select id="audioSource" class="device-select">
+                            <option value="">Loading microphones...</option>
+                        </select>
+                        <select id="audioOutput" class="device-select">
+                            <option value="">Loading speakers...</option>
+                        </select>
+                    </div>
+                    <div class="preview">
+                        <video id="localPreview" autoplay playsinline muted></video>
+                        <div class="preview-controls">
+                            <button id="toggleVideo" class="control-btn active">
+                                <i class="material-icons">videocam</i>
+                            </button>
+                            <button id="toggleAudio" class="control-btn active">
+                                <i class="material-icons">mic</i>
+                            </button>
+                            <button id="toggleBackground" class="control-btn">
+                                <i class="material-icons">blur_on</i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="groupSetup" class="group-setup hidden">
+                        <div class="participant-list">
+                            <div class="participant-item">
+                                <img src="https://tweetchat.me/themes/wondertag/img/icon.png" alt="User">
+                                <span>You (Host)</span>
+                            </div>
+                            <!-- Participants will be added here -->
+                        </div>
+                        <button id="addParticipant" class="secondary-btn">
+                            <i class="material-icons">person_add</i>
+                            Add Participants
+                        </button>
+                    </div>
+                    <div id="liveSetup" class="live-setup hidden">
+                        <div class="live-options">
+                            <div class="option-group">
+                                <label>Stream Title</label>
+                                <input type="text" id="streamTitle" placeholder="Enter your stream title">
+                            </div>
+                            <div class="option-group">
+                                <label>Privacy</label>
+                                <select id="streamPrivacy">
+                                    <option value="public">Public</option>
+                                    <option value="followers">Followers Only</option>
+                                    <option value="private">Private</option>
+                                </select>
+                            </div>
+                            <div class="option-group">
+                                <label>Stream Quality</label>
+                                <select id="streamQuality">
+                                    <option value="auto">Auto (Recommended)</option>
+                                    <option value="1080p">1080p</option>
+                                    <option value="720p">720p</option>
+                                    <option value="480p">480p</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="startCall" class="primary-btn">Start Call</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call Screen -->
+        <div id="call-screen" class="screen">
+            <div class="call-container">
+                <div id="callHeader" class="call-header">
+                    <div class="call-info">
+                        <span id="callStatus" class="call-status">Connected</span>
+                        <span id="callDuration" class="call-duration">00:00</span>
+                    </div>
+                    <div id="liveStats" class="live-stats hidden">
+                        <div class="stat">
+                            <i class="material-icons">visibility</i>
+                            <span id="viewerCount">0</span>
+                        </div>
+                        <div class="stat">
+                            <i class="material-icons">favorite</i>
+                            <span id="likeCount">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="video-grid" id="videoGrid">
+                    <!-- Videos will be added here dynamically -->
+                </div>
+
+                <div id="chatPanel" class="chat-panel hidden">
+                    <div class="chat-header">
+                        <h3>Live Chat</h3>
+                        <button id="toggleChat" class="icon-btn">
+                            <i class="material-icons">close</i>
+                        </button>
+                    </div>
+                    <div id="chatMessages" class="chat-messages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="messageInput" placeholder="Type a message...">
+                        <button id="sendMessage" class="icon-btn">
+                            <i class="material-icons">send</i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="call-controls">
+                    <div class="control-group">
+                        <button id="toggleVideoCall" class="control-btn active" data-tooltip="Toggle Video">
+                            <i class="material-icons">videocam</i>
+                        </button>
+                        <button id="toggleAudioCall" class="control-btn active" data-tooltip="Toggle Audio">
+                            <i class="material-icons">mic</i>
+                        </button>
+                        <button id="toggleScreenShare" class="control-btn" data-tooltip="Share Screen">
+                            <i class="material-icons">screen_share</i>
+                        </button>
+                        <button id="toggleBackgroundCall" class="control-btn" data-tooltip="Background Effects">
+                            <i class="material-icons">blur_on</i>
+                        </button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button id="toggleLayout" class="control-btn" data-tooltip="Change Layout">
+                            <i class="material-icons">grid_view</i>
+                        </button>
+                        <button id="toggleChat" class="control-btn" data-tooltip="Show Chat">
+                            <i class="material-icons">chat</i>
+                            <span class="badge" id="unreadCount">0</span>
+                        </button>
+                        <button id="toggleParticipants" class="control-btn" data-tooltip="Participants">
+                            <i class="material-icons">people</i>
+                        </button>
+                        <button id="toggleSettings" class="control-btn" data-tooltip="Settings">
+                            <i class="material-icons">settings</i>
+                        </button>
+                    </div>
+
+                    <button id="endCall" class="control-btn end-call" data-tooltip="End Call">
+                        <i class="material-icons">call_end</i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Floating Panels -->
+            <div id="participantsPanel" class="floating-panel hidden">
+                <div class="panel-header">
+                    <h3>Participants</h3>
+                    <button class="icon-btn" onclick="togglePanel('participantsPanel')">
+                        <i class="material-icons">close</i>
+                    </button>
+                </div>
+                <div class="panel-content">
+                    <div id="participantsList"></div>
+                    <button id="inviteParticipant" class="secondary-btn">
+                        <i class="material-icons">person_add</i>
+                        Invite More
+                    </button>
+                </div>
+            </div>
+
+            <div id="settingsPanel" class="floating-panel hidden">
+                <div class="panel-header">
+                    <h3>Settings</h3>
+                    <button class="icon-btn" onclick="togglePanel('settingsPanel')">
+                        <i class="material-icons">close</i>
+                    </button>
+                </div>
+                <div class="panel-content">
+                    <div class="settings-group">
+                        <h4>Devices</h4>
+                        <select id="inCallVideoSource" class="setting-select"></select>
+                        <select id="inCallAudioSource" class="setting-select"></select>
+                        <select id="inCallAudioOutput" class="setting-select"></select>
+                    </div>
+                    <div class="settings-group">
+                        <h4>Video Quality</h4>
+                        <select id="videoQuality" class="setting-select">
+                            <option value="auto">Auto</option>
+                            <option value="1080p">1080p</option>
+                            <option value="720p">720p</option>
+                            <option value="480p">480p</option>
+                        </select>
+                    </div>
+                    <div class="settings-group">
+                        <h4>Background Effects</h4>
+                        <div class="background-options">
+                            <button class="bg-option active" data-effect="none">None</button>
+                            <button class="bg-option" data-effect="blur">Blur</button>
+                            <button class="bg-option" data-effect="virtual">Virtual</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <div class="end-container">
+                <h2>Call Ended</h2>
+                <div class="call-stats">
+                    <div class="stat">
+                        <i class="material-icons">schedule</i>
+                        <span id="finalDuration">00:00</span>
+                    </div>
+                    <div class="stat">
+                        <i class="material-icons">network_check</i>
+                        <span id="callQuality">Excellent</span>
+                    </div>
+                    <div class="stat">
+                        <i class="material-icons">speed</i>
+                        <span id="networkSpeed">0 KB/s</span>
+                    </div>
+                </div>
+                <div id="liveStats" class="live-summary hidden">
+                    <h3>Stream Summary</h3>
+                    <div class="summary-stats">
+                        <div class="stat">
+                            <i class="material-icons">visibility</i>
+                            <span id="totalViews">0</span>
+                            <label>Total Views</label>
+                        </div>
+                        <div class="stat">
+                            <i class="material-icons">favorite</i>
+                            <span id="totalLikes">0</span>
+                            <label>Total Likes</label>
+                        </div>
+                        <div class="stat">
+                            <i class="material-icons">chat</i>
+                            <span id="totalComments">0</span>
+                            <label>Comments</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="end-actions">
+                    <button id="newCall" class="primary-btn">New Call</button>
+                    <button id="downloadRecording" class="secondary-btn hidden">
+                        <i class="material-icons">download</i>
+                        Download Recording
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dialogs -->
+        <div id="error-dialog" class="dialog">
+            <div class="dialog-content">
+                <i class="material-icons error-icon">error_outline</i>
+                <h3 id="error-title">Error</h3>
+                <p id="error-message">An error occurred</p>
+                <button id="error-close" class="primary-btn">OK</button>
+            </div>
+        </div>
+
+        <div id="permission-dialog" class="dialog">
+            <div class="dialog-content">
+                <i class="material-icons permission-icon">camera</i>
+                <h3>Camera & Microphone Access</h3>
+                <p>Please allow access to your camera and microphone to use TweetChat Call.</p>
+                <button id="permission-retry" class="primary-btn">Retry</button>
+            </div>
+        </div>
+
+        <div id="invite-dialog" class="dialog">
+            <div class="dialog-content">
+                <h3>Invite Participants</h3>
+                <div class="search-box">
+                    <i class="material-icons">search</i>
+                    <input type="text" id="searchParticipants" placeholder="Search friends...">
+                </div>
+                <div id="searchResults" class="search-results"></div>
+                <div class="dialog-actions">
+                    <button class="secondary-btn" onclick="closeDialog('invite-dialog')">Cancel</button>
+                    <button class="primary-btn" id="sendInvites">Send Invites</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
